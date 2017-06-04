@@ -17,16 +17,11 @@ import android.view.View;
 
 public class AlarmNotificationReceiver extends BroadcastReceiver{
 
-
+    public static String task;
 
     @Override
     public void onReceive(Context context, Intent intent) {
 
-
-        Dialog dialog = new Dialog(context);
-        dialog.setContentView(R.layout.activity_main);
-
-        EditText task = (EditText) dialog.findViewById(R.id.task);
 
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
@@ -35,11 +30,12 @@ public class AlarmNotificationReceiver extends BroadcastReceiver{
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("Reminder!!!!!!!")
-                .setContentText(task.getText().toString())
+                .setContentText(task)
                 .setDefaults(Notification.DEFAULT_LIGHTS|Notification.DEFAULT_SOUND)
                 .setContentInfo("Info");
 
+
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(1,builder.build());
+        notificationManager.notify(0,builder.build());
     }
 }

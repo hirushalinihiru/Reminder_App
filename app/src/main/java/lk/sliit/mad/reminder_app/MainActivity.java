@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,13 +18,13 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText date,task,task1,task2;
+    EditText date,task;
     DatePickerDialog datePickerDialog;
     Calendar currentCal;
     Calendar selectCal=Calendar.getInstance();
     Date d = new Date();
 
-    Button btnOneTime,btnRepeat;
+    Button btnOneTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,8 +34,7 @@ public class MainActivity extends AppCompatActivity {
         // initiate the date picker and a button
         date = (EditText) findViewById(R.id.date);
         task = (EditText) findViewById(R.id.task);
-        task1 = (EditText) findViewById(R.id.task1);
-        task2 = (EditText) findViewById(R.id.task2);
+
         // perform click event on edit text
         date.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,44 +69,48 @@ public class MainActivity extends AppCompatActivity {
 
 
         btnOneTime = (Button) findViewById(R.id.btnOneTime);
-        btnRepeat = (Button) findViewById(R.id.btnRepeating);
+
 
         btnOneTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 currentCal=Calendar.getInstance();
-                startAlarm(false);
+                startAlarm();
             }
         });
 
-        btnRepeat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startAlarm(true);
-            }
-        });
+
 
 
     }
 
-    private void startAlarm(boolean isRepeat) {
-        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+    private void startAlarm() {
+
+        /*AlarmNotificationReceiver.task=task.getText().toString();
+
+        AlarmManager manager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         Intent myIntent = new Intent(MainActivity.this,AlarmNotificationReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this,0,myIntent,0);
+        //PendingIntent pendingIntent = PendingIntent.getBroadcast(this,0,myIntent,0);
 
-        if(isRepeat)
-        {
-            //manager.setRepeating(AlarmManager.RTC_WAKEUP,SystemClock.elapsedRealtime()+3000,3000,pendingIntent);
-        }
-        else
-        {
-            task.setText(""+(currentCal.getTimeInMillis()));
-            task1.setText(""+(selectCal.getTimeInMillis()));
-            task2.setText(""+(selectCal.getTimeInMillis()-currentCal.getTimeInMillis()));
 
-            manager.set(AlarmManager.RTC_WAKEUP,selectCal.getTimeInMillis()-currentCal.getTimeInMillis(),pendingIntent);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this,0,myIntent,PendingIntent.FLAG_ONE_SHOT);
+            manager.setExact(AlarmManager.RTC_WAKEUP,10,pendingIntent);
+        //manager.setExact(AlarmManager.RTC_WAKEUP,(selectCal.getTimeInMillis()-currentCal.getTimeInMillis()),pendingIntent);
 
-        }
+*/
+        long time =selectCal.getTimeInMillis()-currentCal.getTimeInMillis();
+        AlarmManager alarms = (AlarmManager)this.getSystemService(Context.ALARM_SERVICE);
+
+        AlarmNotificationReceiver receiver = new AlarmNotificationReceiver();
+        IntentFilter filter = new IntentFilter("ALARM_ACTION");
+        registerReceiver(receiver, filter);
+
+        Intent intent = new Intent("ALARM_ACTION");
+        intent.putExtra("param", "My scheduled action");
+        PendingIntent operation = PendingIntent.getBroadcast(this, 0, intent, 0);
+        // I choose 3s after the launch of my application
+        alarms.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+time, operation) ;
+
 
 
     }
