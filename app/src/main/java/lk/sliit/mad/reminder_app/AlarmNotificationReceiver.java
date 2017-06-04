@@ -19,9 +19,9 @@ public class AlarmNotificationReceiver extends BroadcastReceiver{
 
 
 
-
     @Override
     public void onReceive(Context context, Intent intent) {
+
 
         Dialog dialog = new Dialog(context);
         dialog.setContentView(R.layout.activity_main);
