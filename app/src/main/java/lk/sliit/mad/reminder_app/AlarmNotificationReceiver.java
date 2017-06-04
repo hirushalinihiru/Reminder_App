@@ -29,7 +29,7 @@ public class AlarmNotificationReceiver extends BroadcastReceiver{
         builder.setAutoCancel(true)
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Reminder!!!!!!!")
+                .setContentTitle("ALERT!")
                 .setContentText(task)
                 .setDefaults(Notification.DEFAULT_LIGHTS|Notification.DEFAULT_SOUND)
                 .setContentInfo("Info");

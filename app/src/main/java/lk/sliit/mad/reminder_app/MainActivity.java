@@ -3,6 +3,7 @@ package lk.sliit.mad.reminder_app;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.PendingIntent;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -13,13 +14,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TimePicker;
+
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText date,task;
+    EditText date,task,time;
     DatePickerDialog datePickerDialog;
+    TimePickerDialog timePickerDialog;
     Calendar currentCal;
     Calendar selectCal=Calendar.getInstance();
     Date d = new Date();
@@ -33,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
         // initiate the date picker and a button
         date = (EditText) findViewById(R.id.date);
+        time = (EditText) findViewById(R.id.time);
         task = (EditText) findViewById(R.id.task);
 
         // perform click event on edit text
@@ -56,9 +62,7 @@ public class MainActivity extends AppCompatActivity {
                                 selectCal.set(Calendar.YEAR, year);
                                 selectCal.set(Calendar.MONTH, monthOfYear);
                                 selectCal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                                selectCal.set(Calendar.HOUR_OF_DAY,0);
-                                selectCal.set(Calendar.MINUTE,0);
-                                selectCal.set(Calendar.SECOND,0);
+
 
                             }
                         }, mYear, mMonth, mDay);
@@ -66,6 +70,32 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+        time.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                currentCal=Calendar.getInstance();
+                int hour = currentCal.get(Calendar.HOUR); // current hour
+                int minute = currentCal.get(Calendar.MINUTE); // current minute
+
+                timePickerDialog = new TimePickerDialog(MainActivity.this,
+                        new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+
+                        time.setText(""+ new DecimalFormat("00").format(selectedHour) +" : "+ new DecimalFormat("00").format(selectedMinute));
+                        selectCal.set(Calendar.HOUR_OF_DAY,selectedHour);
+                        selectCal.set(Calendar.MINUTE,selectedMinute);
+                        selectCal.set(Calendar.SECOND,0);
+                    }
+                }, hour,minute,true);
+
+                timePickerDialog.show();
+
+
+
+            }
+        });
 
 
         btnOneTime = (Button) findViewById(R.id.btnOneTime);
@@ -86,30 +116,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void startAlarm() {
 
-        /*AlarmNotificationReceiver.task=task.getText().toString();
-
+        AlarmNotificationReceiver.task=task.getText().toString();
+        long time =selectCal.getTimeInMillis()-currentCal.getTimeInMillis();
         AlarmManager manager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         Intent myIntent = new Intent(MainActivity.this,AlarmNotificationReceiver.class);
-        //PendingIntent pendingIntent = PendingIntent.getBroadcast(this,0,myIntent,0);
 
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this,0,myIntent,PendingIntent.FLAG_ONE_SHOT);
-            manager.setExact(AlarmManager.RTC_WAKEUP,10,pendingIntent);
-        //manager.setExact(AlarmManager.RTC_WAKEUP,(selectCal.getTimeInMillis()-currentCal.getTimeInMillis()),pendingIntent);
-
-*/
-        long time =selectCal.getTimeInMillis()-currentCal.getTimeInMillis();
-        AlarmManager alarms = (AlarmManager)this.getSystemService(Context.ALARM_SERVICE);
-
-        AlarmNotificationReceiver receiver = new AlarmNotificationReceiver();
-        IntentFilter filter = new IntentFilter("ALARM_ACTION");
-        registerReceiver(receiver, filter);
-
-        Intent intent = new Intent("ALARM_ACTION");
-        intent.putExtra("param", "My scheduled action");
-        PendingIntent operation = PendingIntent.getBroadcast(this, 0, intent, 0);
-        // I choose 3s after the launch of my application
-        alarms.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+time, operation) ;
+            manager.setExact(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+time,pendingIntent);
 
 
 
