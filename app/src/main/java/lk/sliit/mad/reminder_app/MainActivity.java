@@ -6,8 +6,6 @@ import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -15,6 +13,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.text.DecimalFormat;
 import java.util.Calendar;
@@ -22,7 +21,7 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText date,task,time;
+    EditText date, txtTask,txtTime;
     DatePickerDialog datePickerDialog;
     TimePickerDialog timePickerDialog;
     Calendar currentCal;
@@ -38,8 +37,8 @@ public class MainActivity extends AppCompatActivity {
 
         // initiate the date picker and a button
         date = (EditText) findViewById(R.id.date);
-        time = (EditText) findViewById(R.id.time);
-        task = (EditText) findViewById(R.id.task);
+        txtTime = (EditText) findViewById(R.id.time);
+        txtTask = (EditText) findViewById(R.id.task);
 
         // perform click event on edit text
         date.setOnClickListener(new View.OnClickListener() {
@@ -71,11 +70,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        time.setOnClickListener(new View.OnClickListener() {
+        txtTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 currentCal=Calendar.getInstance();
-                int hour = currentCal.get(Calendar.HOUR); // current hour
+                int hour = currentCal.get(Calendar.HOUR_OF_DAY); // current hour
                 int minute = currentCal.get(Calendar.MINUTE); // current minute
 
                 timePickerDialog = new TimePickerDialog(MainActivity.this,
@@ -83,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
 
-                        time.setText(""+ new DecimalFormat("00").format(selectedHour) +" : "+ new DecimalFormat("00").format(selectedMinute));
+                        txtTime.setText(""+ new DecimalFormat("00").format(selectedHour) +" : "+ new DecimalFormat("00").format(selectedMinute));
                         selectCal.set(Calendar.HOUR_OF_DAY,selectedHour);
                         selectCal.set(Calendar.MINUTE,selectedMinute);
                         selectCal.set(Calendar.SECOND,0);
@@ -105,7 +104,40 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 currentCal=Calendar.getInstance();
-                startAlarm();
+
+                long time =selectCal.getTimeInMillis()-currentCal.getTimeInMillis();
+                Context context = getApplicationContext();
+                CharSequence text = "THE SELECTED TIME IS FOREGONE!";
+                int duration = Toast.LENGTH_SHORT;
+
+                if(txtTask.getText().toString().isEmpty())
+                {
+                    text = "PLEASE ENTER A TASK!";
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                }
+                else if(date.getText().toString().isEmpty())
+                {
+                    text = "PLEASE SELECT A DATE!";
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                }
+                else if(txtTime.getText().toString().isEmpty())
+                {
+                    text = "PLEASE SELECT A TIME!";
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                }
+                else if(time <= 0)
+                {
+                    text = "THE SELECTED TIME IS FOREGONE!";
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                }
+                else
+                {
+                    startAlarm(time);
+                }
             }
         });
 
@@ -114,16 +146,17 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void startAlarm() {
+    private void startAlarm(long duration) {
 
-        AlarmNotificationReceiver.task=task.getText().toString();
-        long time =selectCal.getTimeInMillis()-currentCal.getTimeInMillis();
+        AlarmNotificationReceiver.task= txtTask.getText().toString();
+
         AlarmManager manager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         Intent myIntent = new Intent(MainActivity.this,AlarmNotificationReceiver.class);
 
 
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this,0,myIntent,PendingIntent.FLAG_ONE_SHOT);
-            manager.setExact(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+time,pendingIntent);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, myIntent, PendingIntent.FLAG_ONE_SHOT);
+        manager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + duration, pendingIntent);
+
 
 
 
