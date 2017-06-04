@@ -136,6 +136,9 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else
                 {
+                    text = "REMINDER SET SUCCESSFULLY!";
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
                     startAlarm(time);
                 }
             }
